@@ -4,5 +4,5 @@
 ###### - Learn how to authenticate user using password
 ###### - Learn how to authenticate user using JWT token
 ###### - Create a folder lab09 and initialize express.js project in it.
-## Preqreuisites:
+## Prerequisites:
 Install express as dependency and nodemon as dev-dependency.
