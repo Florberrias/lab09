@@ -7,13 +7,13 @@ const auth = async (req, res, next) => {
   try {
     // To be done
     // 1) Verify JWT
-    const data = jwt.verify(token, process.env.JWT_KEY);
+    let data = await jwt.verify(token, process.env.JWT_KEY);
     console.log("Verified: ", data);
     // 2) Set req.user_id, req.token and req.user values
     req.user_id = data._id;
     req.token = token;
 
-    const user = await User_findOne({ _id: data._id });
+    const user = await User.findOne({ _id: data._id });
     if (!user) {
       throw new Error();
     }
