@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const schema = new mongoose.Schema({
   email: {
@@ -9,7 +10,9 @@ const schema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     validate: (value) => {
-      return validator.isEmail(value);
+      if (!validator.isEmail(value)) {
+        throw new Error({ error: "Invalid Email address" });
+      }
     },
   },
   password: { type: String, required: true, minlength: 5 },
@@ -36,11 +39,29 @@ schema.statics.findByCredentials = async (email, password) => {
   if (!user) {
     throw new Error({ error: "Invalid login credentials" });
   }
-  const isMatched = password === user.password;
+  // compare encrypted password
+  const isMatched = await bcrypt.compare(password, user.password);
   if (!isMatched) {
     throw new Error({ error: "Invalid login credentials" });
   }
   return user;
 };
+
+schema.pre("save", async function (next) {
+  // Hash the password before saving the user model
+  const user = this;
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+  next();
+});
+
+schema.post("save", function (error, doc, next) {
+  if (error.name === "MongoError" && error.code === 11000) {
+    next(new Error("Email already registered"));
+  } else {
+    next(error);
+  }
+});
 
 module.exports = User;
