@@ -1,8 +1,16 @@
 const express = require("express");
+require("dotenv").config();
+
 const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("Hello JWT");
 });
-app.listen(3000, () => {
-  console.log("Server running on port 3000...");
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at port ${PORT}`);
 });
